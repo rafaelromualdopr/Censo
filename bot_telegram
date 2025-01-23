@@ -1,0 +1,168 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "id": "4d8cb900-6590-402f-98e0-4f9ec3a8dd83",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        200
+      ],
+      "webhookId": "7b4910fb-a76d-4092-a192-6d5ced0a040b",
+      "credentials": {
+        "telegramApi": {
+          "id": "OW3tNHpHjHKoFNkf",
+          "name": "Telegram-N8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "54e303b5-46a5-4beb-8386-403bd9f83a4f",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        680,
+        440
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "86quwzXztdXqevwQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "5c89ef89-4833-4a17-9915-35d617653926",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1180,
+        200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "OW3tNHpHjHKoFNkf",
+          "name": "Telegram-N8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uyTEYt64sx5sva1DZcqgNG3_-maOW78lEbCRkdHXsLo",
+          "mode": "list",
+          "cachedResultName": "Agendor Sindis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uyTEYt64sx5sva1DZcqgNG3_-maOW78lEbCRkdHXsLo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 381077841,
+          "mode": "list",
+          "cachedResultName": "base_telegram",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uyTEYt64sx5sva1DZcqgNG3_-maOW78lEbCRkdHXsLo/edit#gid=381077841"
+        },
+        "options": {}
+      },
+      "id": "904401b5-f8b9-4ecf-922d-4c3dbdb6836c",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        420
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mnsjCxLtpfGHbqnI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=Você é um Agente de IA projetado para auxiliar o usuário na consulta e organização de informações. Sua principal função é utilizar ferramentas, como planilhas do Google, para responder perguntas e realizar tarefas com eficiência e precisão. Você tem acesso às seguintes ferramentas para desempenhar suas funções:\n\nDemandas Marketing: Use esta ferramenta quando precisar consultar informações relacionadas exclusivamente às demandas da equipe de marketing.\n\nÚltima Atualização: Use esta ferramenta para verificar a última data e hora em que os dados das planilhas foram atualizados.\n\nOrientações:\nSempre escolha a ferramenta mais apropriada para a tarefa solicitada pelo usuário.\nSeja claro e organizado ao apresentar os dados, garantindo que as informações sejam precisas e úteis.\nAntes de qualquer consulta, assegure-se de que está utilizando a fonte correta, com base na pergunta do usuário.\nCaso o usuário solicite um dado que envolva múltiplas ferramentas, combine as informações para fornecer uma resposta completa.\nAqui está a data/hora atual: {{ $now.format('DD/MM/YYYY HH:mm') }}\n\nSeu objetivo é fornecer uma experiência prática e eficiente, utilizando os dados disponíveis para solucionar dúvidas e ajudar o usuário a gerenciar informações."
+        }
+      },
+      "id": "2f4aad69-d707-4ba9-903e-8bbffd963330",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        800,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "494bb5236eac2bd6edd2151fa9526abb0fbe27b7d9fa3d8da79dea7e6c47f4e2"
+  }
+}

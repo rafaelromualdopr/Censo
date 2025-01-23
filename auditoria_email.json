@@ -1,0 +1,138 @@
+{
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "weeks",
+                "triggerAtDay": [
+                  3
+                ],
+                "triggerAtHour": 13
+              }
+            ]
+          }
+        },
+        "id": "a42b0b71-a457-4b40-acf8-10485c87d5aa",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          60,
+          260
+        ]
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1dDVk_8YVdlkNeOB7ZPDdjR7CGRXEF7Q16pOKe3DWsY8",
+            "mode": "list",
+            "cachedResultName": "base-clickup",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dDVk_8YVdlkNeOB7ZPDdjR7CGRXEF7Q16pOKe3DWsY8/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1418425087,
+            "mode": "list",
+            "cachedResultName": "Auditoria-N8N",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dDVk_8YVdlkNeOB7ZPDdjR7CGRXEF7Q16pOKe3DWsY8/edit#gid=1418425087"
+          },
+          "options": {}
+        },
+        "id": "8391fa8e-69e0-47ec-a451-77202995dbca",
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          320,
+          260
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "UUGawdPSjHEGw1wt",
+            "name": "Teste Google Sheets"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "victor.soares@linkcom.com.br, aline.pedrosa@linkcom.com.br",
+          "subject": "=Auditoria - {{ $now.format('DD HH:mm') }}",
+          "message": "=<p style=\"font-size: 18px; font-weight: bold;\">\n    Olá Victor, tudo certo, lembrou de conferir a auditoria essa semana?\n</p>\n\n<p>Seguem abaixo os resultados da auditoria essa semana:</p>\n\n<!-- Quebra de linha -->\n<br>\n\n{{ $json.htmlTable }}\n\n<!-- Outra quebra de linha -->\n<br><br>\n\n<p style=\"font-size: 15px; color: #ba0600;\">\n  Abaixo Seguem links necessários:\n</p>\n    ClickUp: <a href=\"url\">https://app.clickup.com/31120569/v/l/6-901103717254-1</a><br><br>\n    Auditoria Looker: <a href=\"url\">https://lookerstudio.google.com/reporting/cbc5fb3c-1d3d-4ec0-9164-32a9f3ce58f4/page/p_g0e3s9vsnd</a\n",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "id": "1298c5e6-a7b6-45b8-903b-3e42e7dc3396",
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          760,
+          260
+        ],
+        "webhookId": "b2de3a5c-c83c-4a25-9b24-37560cd24483",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "Vd7NxPwPz9RcBPoX",
+            "name": "Gmail Credencial 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const rows = $input.all(); // Obtém todas as linhas da planilha\nconst headers = Object.keys(rows[0].json).filter(header => header !== \"row_number\"); // Remove \"row_number\" dos cabeçalhos\n\n// Começa a criar a tabela HTML com bordas arredondadas\nlet htmlTable = `<table border=\"1\" style=\"border-collapse: collapse; width: 100%; border-radius: 10px; overflow: hidden;\">`;\n\n// Adiciona os cabeçalhos como a primeira linha da tabela\nhtmlTable += `<thead><tr>`;\nheaders.forEach(header => {\n    htmlTable += `<th style=\"padding: 8px; text-align: left; background-color: #212f3c;color:white\">${header}</th>`;\n});\nhtmlTable += `</tr></thead>`;\n\n// Adiciona os dados (linhas da planilha) na tabela\nhtmlTable += `<tbody>`;\nrows.forEach(row => {\n    htmlTable += `<tr>`;\n    headers.forEach(header => {\n        htmlTable += `<td style=\"padding: 8px; text-align: left;background-color: #85929e\">${row.json[header]}</td>`;\n    });\n    htmlTable += `</tr>`;\n});\nhtmlTable += `</tbody></table>`;\n\n// Retorna a tabela HTML gerada\nreturn [{ json: { htmlTable } }];\n"
+        },
+        "id": "c87ea31e-6b39-4db0-a599-da360e419b80",
+        "name": "Code",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          580,
+          260
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Code",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code": {
+        "main": [
+          [
+            {
+              "node": "Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "494bb5236eac2bd6edd2151fa9526abb0fbe27b7d9fa3d8da79dea7e6c47f4e2"
+    }
+  }
